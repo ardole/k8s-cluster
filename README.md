@@ -2,6 +2,7 @@
 
 Link|Description
 :---: | :---:
-|[Local](local/README.md)|Local with VMs using Vagrant and Virtualbox
+|[Local single node](local/README.md)|Local single node using Minikube
+|[Local cluster](local/README.md)|Local cluster with VMs using Vagrant and Virtualbox
 |[Remote with Ansible](ansible/README.md)|WIP : Use Ansible to setup cluster
 
