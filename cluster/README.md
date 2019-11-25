@@ -1,4 +1,4 @@
-# Setup K8S on local environment
+# Setup K8S Cluster on local environment
 
 Using:
 - Virtualbox
@@ -13,6 +13,8 @@ Sorry for guys working in any ESN company providing 2vCPU and 8go RAM, you will 
 - Disk > 256go
 
 And Vagrant / Virtualbox installed. https://www.vagrantup.com/downloads.html 
+
+**To be ROOT**
 
 ## Setup virtual machines
 
@@ -52,9 +54,13 @@ sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
 modprobe br_netfilter
 ```
 
-- Ensure net.bridge.bridge-nf-call-iptables is set to 1 in your sysctl config.
+- Update sysctl config.
 ```
 echo '1' > /proc/sys/net/bridge/bridge-nf-call-iptables
+cat <<EOF >  /etc/sysctl.d/k8s.conf
+net.bridge.bridge-nf-call-ip6tables = 1
+net.bridge.bridge-nf-call-iptables = 1
+EOF
 ```
 
 - Deactivate SWAP.
@@ -69,7 +75,8 @@ sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
 ```
 yum install -y yum-utils device-mapper-persistent-data lvm2
 yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
-yum install docker-ce-18.09.1
+yum install --assumeyes docker-ce-17.09.*
+systemctl daemon-reload
 systemctl start docker
 systemctl enable docker
 ```
@@ -92,7 +99,7 @@ EOF
 - Add and enable Kubelet service.
 ```
 yum install -y kubelet kubeadm --disableexcludes=kubernetes
-systemctl enable --now kubelet
+systemctl enable kubelet
 ```
 
 - Pull images for initialization.
@@ -108,7 +115,7 @@ So we need to add option *--pod-network-cidr=10.244.0.0/16* at kubeadm initializ
 
 - Start initialization. Please replace apiserver-advertise-address by master's network IP.
 ```
-kubeadm init --pod-network-cidr=10.244.0.0/16 --apiserver-advertise-address=172.28.128.8
+kubeadm init --pod-network-cidr=10.244.0.0/16 --apiserver-advertise-address=10.0.2.15
 ```
 
 - If success, don't forget to copy kubeadm join command line given in output command.
@@ -122,7 +129,7 @@ chown $(id -u):$(id -g) $HOME/.kube/config
 
 - Finally, install the pod network you choose before.
 ```
-kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/a70459be0084506e4ec919aa1c114638878db11b/Documentation/kube-flannel.yml
+kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
 ```
 
 - Wait your master to be READY.
@@ -131,15 +138,32 @@ kubectl get nodes
 ```
 - You can get a little more details on pods initialization.
 ```
-kubectl get pods  --all-namespaces
+kubectl get pods --all-namespaces
 ```
 
 ## On each nodes
 
 - Join the cluster with the command *kubeadm join* you copy before.
 ```
-kubeadm join 172.28.128.8:6443 --token abc123.bfl34rze70jddcsg \
+kubeadm join 10.0.2.15:6443 --token abc123.bfl34rze70jddcsg \
     --discovery-token-ca-cert-hash sha256:blablabla
 ```
 
 - Go back to the master and check that your nodes comes and are READY !
+
+```
+kubectl get nodes
+```
+
+## Setup Kubernetes dashboard
+
+- In order to setup dashboard you need to run on the master:
+```
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0-beta4/aio/deploy/recommended.yaml
+```
+
+- When you need it, simply start it:
+```
+kubectl proxy --address=0.0.0.0
+```
+Then dashboard will be accessible on http://localhost:8081/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/ from your host (because 8001 port is forwarded to 8081 in Vagrant config see [Vagrantfile](vagrant/master/Vagrantfile)
