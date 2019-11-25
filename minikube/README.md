@@ -213,7 +213,7 @@ kubectl apply -f https://raw.githubusercontent.com/google/metallb/v0.8.3/manifes
 - Create a simple configuration *config.yml*, with your local IPs adresses that should be assign to external services.
 For me I use 172.28.128.100-172.28.128.140 (I choose eth1 addresses but you can choose eth0).
 
-```
+```yaml
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -242,7 +242,11 @@ NAME       TYPE           CLUSTER-IP      EXTERNAL-IP      PORT(S)          AGE
 my-nginx   LoadBalancer   10.110.94.235   172.28.128.101   80:31930/TCP     2m25s
 ```
 
-Normally, an EXTERNAL-IP should has been assigned !!!
+Normally, an EXTERNAL-IP should has been assigned !!! You have an external access !!
+
+```
+curl http://172.28.128.101
+```
 
 - Now you can check if Ingress controllers are working.
 
