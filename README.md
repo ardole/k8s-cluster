@@ -1,4 +1,6 @@
-# Setup some Kubernetes cluster.
+# Setup Kubernetes clusters.
+
+Provide some scripts and info for building Kubernetes clusters.
 
 Link|Description
 :---: | :---:
