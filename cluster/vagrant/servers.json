@@ -2,22 +2,25 @@
   {
     "name": "k8s-1",
     "box": "centos/7",
-    "ram": 1024,
+    "ram": 2048,
     "vcpu": 2,
-    "ip": "192.168.48.141"
+    "ip": "192.168.48.141",
+    "script": "install-k8s-master.sh"
   },
   {
     "name": "k8s-2",
     "box": "centos/7",
     "ram": 1024,
     "vcpu": 1,
-    "ip": "192.168.48.142"
+    "ip": "192.168.48.142",
+    "script": "install-k8s-node.sh"
   },
   {
     "name": "k8s-3",
     "box": "centos/7",
     "ram": 1024,
     "vcpu": 1,
-    "ip": "192.168.48.143"
+    "ip": "192.168.48.143",
+    "script": "install-k8s-node.sh"
   }
 ]
