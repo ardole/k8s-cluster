@@ -18,22 +18,23 @@ And Vagrant / Virtualbox installed. https://www.vagrantup.com/downloads.html
 
 ## Setup virtual machines
 
-You can use followings templates:
-- [K8S Master VM](vagrant/master/Vagrantfile)
-- [K8S Node VM](vagrant/master/Vagrantfile)
+You can use following template:
+- [K8S Cluser](vagrant/Vagrantfile)
+Modify servers settings:
+- [servers.json](vagrant/servers.json)
 
-You can use a simple script to start all VM easily and then SSH to the master:
+### Start cluster
+
 ```bat
 cd vagrant
-
-cd master
 vagrant up
+```
 
-cd ../node1
-vagrant up
+### Login to the control machine
 
-cd ../master
-vagrant ssh
+```
+cd vagrant
+vagrant ssh k8s-1
 ```
 
 ## On each VM
