@@ -1,4 +1,4 @@
-# Setup K8S Cluster on local environment
+# Setup K8S Cluster on local environment (cluster)
 
 Using:
 - Virtualbox
@@ -16,8 +16,8 @@ And Vagrant / Virtualbox installed. https://www.vagrantup.com/downloads.html
 
 ## Setup Cluster
 
-You can use following template:
-- [K8S Cluser](vagrant/Vagrantfile)
+You can use this template:
+- [K8S Cluster](vagrant/Vagrantfile)
 Modify servers settings:
 - [servers.json](vagrant/servers.json)
 
