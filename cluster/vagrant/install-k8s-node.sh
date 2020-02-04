@@ -2,10 +2,12 @@
 
 set -e
 
+NODE_IP="$1"
+
 # Global configuration
 
 sudo bash -c 'cat > /etc/hosts <<EOF
-127.0.0.1		localhost
+127.0.0.1	localhost
 192.168.48.141  k8s-1
 192.168.48.142  k8s-2
 192.168.48.143  k8s-3
@@ -47,6 +49,7 @@ sudo swapoff -a
 sudo sed -i '/swap/d' /etc/fstab
 
 # Install Kubernetes
+
 sudo bash -c 'cat <<EOF > /etc/yum.repos.d/kubernetes.repo
 [kubernetes]
 name=Kubernetes
@@ -58,6 +61,13 @@ gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cl
 EOF'
 
 sudo yum install -y kubelet-1.17.2 kubeadm-1.17.2 kubectl-1.17.2 --disableexcludes=kubernetes
+
+sudo bash -c "cat <<EOF | sudo tee /etc/sysconfig/kubelet
+KUBELET_EXTRA_ARGS=--node-ip=$NODE_IP
+EOF"
+
+sudo systemctl daemon-reload
+sudo systemctl restart kubelet
 sudo systemctl enable --now kubelet
 
 # Join the master

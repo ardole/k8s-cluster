@@ -2,10 +2,12 @@
 
 set -e
 
+NODE_IP="$1"
+
 # Global configuration
 
 sudo bash -c 'cat > /etc/hosts <<EOF
-127.0.0.1		localhost
+127.0.0.1	localhost
 192.168.48.141	k8s-1
 192.168.48.142	k8s-2
 192.168.48.143	k8s-3
@@ -59,10 +61,16 @@ gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cl
 EOF'
 
 sudo yum install -y kubelet-1.17.2 kubeadm-1.17.2 kubectl-1.17.2 --disableexcludes=kubernetes
+
+sudo bash -c "cat <<EOF | sudo tee /etc/sysconfig/kubelet
+KUBELET_EXTRA_ARGS=--node-ip=$NODE_IP
+EOF"
+
+sudo systemctl daemon-reload
+sudo systemctl restart kubelet
 sudo systemctl enable --now kubelet
 
 # Initialize K8S
-sudo kubeadm config images pull
 sudo kubeadm init --token vag3nt.nos3curebutlocal --pod-network-cidr=10.244.0.0/16 --apiserver-advertise-address=192.168.48.141 > kubeinit.log
 
 # Move K8S config to vagrant user and create K8S
@@ -70,4 +78,4 @@ mkdir -p /home/vagrant/.kube
 sudo cp -f /etc/kubernetes/admin.conf /home/vagrant/.kube/config
 sudo chown vagrant:vagrant /home/vagrant/.kube/config
 # Install CNI : Flannel
-su - vagrant -c "kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml"
+su - vagrant -c "kubectl apply -f kube-flannel.yml"

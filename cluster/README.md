@@ -21,14 +21,13 @@ You can use this template:
 Modify servers settings:
 - [servers.json](vagrant/servers.json)
 
-### Start cluster
+## Start cluster
 
 ```bat
 cd vagrant
 vagrant up
 ```
-
-### Check installation 
+## Check installation 
 
 - SSH connexion to control machine
 
@@ -47,6 +46,20 @@ k8s-2   Ready    <none>   61m   v1.17.2
 k8s-3   Ready    <none>   55m   v1.17.2
 
 ```
+
+## More about this cluster
+
+### Components
+
+- Control machine is **k8s-1**
+- Docker is installed, with systemd
+- CNI used is flannel
+
+### About flannel
+
+According to official documentation https://github.com/coreos/flannel/blob/master/Documentation/troubleshooting.md#vagrant, 
+the setup of flannel must be modified. That's why [kube-flannel.yml](kube-flannel.yml) has been included in the project.
+See option "--iface=eth1" added to kube-flannel containers.
 
 ## Setup Kubernetes dashboard
 
