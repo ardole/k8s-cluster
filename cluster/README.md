@@ -119,13 +119,38 @@ Range IPs for MetalLB is configured 192.168.50.240-192.168.50.250. See [vagrant/
 
 ## Setup Kubernetes dashboard
 
-- In order to setup dashboard you need to run on the master:
-```
-kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0-beta4/aio/deploy/recommended.yaml
+In order to setup the dashboard you need:
+
+- Get the token for user-admin (because you will access the dashboard outside from the cluster, from your host)
+
+```console
+[vagrant@k8s-1 ~]$ kubectl -n kubernetes-dashboard describe secret $(kubectl -n kubernetes-dashboard get secret | grep admin-user | awk '{print $1}')
+...
+...
+Data
+====
+ca.crt:     1025 bytes
+namespace:  7 bytes
+token:      eyJhbGciOiJSUzI1NiIsImtpZCI6IlNkUFVsZjZrbWtYdzVkSG1qVldFVjFteTVXcnduRTU2UHNSTXVZLUFiNjgifQ.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJkZWZhdWx0Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZWNyZXQubmFtZSI6ImRhc2hib2FyZC1hZG1pbi1zYS10b2tlbi1oNzc0aCIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VydmljZS1hY2NvdW50Lm5hbWUiOiJkYXNoYm9hcmQtYWRtaW4tc2EiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC51aWQiOiI0YWY5ZTdkYy01ODQ2LTQ1MGEtOWRhMi1jNGFhYjBmMzBmZjIiLCJzdWIiOiJzeXN0ZW06c2VydmljZWFjY291bnQ6ZGVmYXVsdDpkYXNoYm9hcmQtYWRtaW4tc2EifQ.VD83QLmFhEKWfwf26O97AruDCFfj0w4cbdZ4NgSYoe_VUcsxqNYUjOyrvDcR_T1f2F3KfzbrV5j2uGssVD-LDsiqYj_O3WWDblVDG17bdN59f4CzECKPlC-RbHvsn5EX9Fru7t6b2O_Tln_Vcz-83pcdrZOI3qEzJ8NLoPQuL1U3pJPbpGfaZpNCiT0OZwZZdLz5A4e_BpkIOZG5oQdvPFufJlb88gsexmnmyFyht7u7SzoJlDq2qcX5RloJw0eUFBhYCKeZMyT2O5RBoCjHFdDBxixn2ZuWUujCNsrLD4CedoKEAEN4pMBr2wsJDO-7EM3KKyAf92h10ICNy6YRmg
 ```
 
-- When you need it, simply start it:
+- Copy the **token** from your console
+
+- Start dashboard proxy, don't forget **--address=0.0.0.0** option.
+
+```console
+[vagrant@k8s-1 ~]$ kubectl proxy --address=0.0.0.0
+Starting to serve on [::]:8001
 ```
-kubectl proxy --address=0.0.0.0
-```
-Then dashboard will be accessible on http://localhost:8081/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/ from your host (because 8001 port is forwarded to 8081 in Vagrant config see [Vagrantfile](vagrant/master/Vagrantfile)
+
+
+- Connect from your host to this address: http://localhost:8081/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/
+
+- Past the token
+
+![Dashboard token](./sc/k8s-dashboard-token.png)
+
+- And click on **Sign In** ! Enjoy
+
+![Dashboard token](./sc/k8s-dashboard.png)
+
