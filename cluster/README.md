@@ -6,24 +6,25 @@ Using:
 
 ## What you need
 
-Sorry for guys working in any ESN company providing 1vCPU and 4go RAM, you will need more :grin:
+Vagrant and Virtualbox installed.
+- https://www.vagrantup.com/downloads.html 
+- https://www.virtualbox.org/wiki/Downloads
+
+Sorry for guys working in ESN company providing 1vCPU and 4go RAM, you will need more :grin:
 
 - At least 4vCPU
 - At least 8go RAM
 - Disk > 128go
 
-And Vagrant / Virtualbox installed. https://www.vagrantup.com/downloads.html 
 
 ## Setup Cluster
 
-You can use this template:
+You will use this template:
 - [K8S Cluster](vagrant/Vagrantfile)
-Modify servers settings:
+You can modify if needed servers settings:
 - [servers.json](vagrant/servers.json)
 
-## Start cluster
-
-```bat
+```
 cd vagrant
 vagrant up
 ```
@@ -38,13 +39,12 @@ vagrant ssh k8s-1
 
 - Check nodes
 
-```
+```console
 [vagrant@k8s-1 ~]$ kubectl get nodes
 NAME    STATUS   ROLES    AGE   VERSION
 k8s-1   Ready    master   66m   v1.17.2
 k8s-2   Ready    <none>   61m   v1.17.2
 k8s-3   Ready    <none>   55m   v1.17.2
-
 ```
 
 ## More about this cluster
@@ -53,13 +53,14 @@ k8s-3   Ready    <none>   55m   v1.17.2
 
 - Control machine is **k8s-1**
 - Docker is installed, with systemd
-- CNI used is flannel
+- CNI used is Calico
 
-### About flannel
+### About Calico
 
-According to official documentation https://github.com/coreos/flannel/blob/master/Documentation/troubleshooting.md#vagrant, 
-the setup of flannel must be modified. That's why [kube-flannel.yml](kube-flannel.yml) has been included in the project.
-See option "--iface=eth1" added to kube-flannel containers.
+Some difficulties with Flannel and Virtualbox. Calico works well.
+
+:warning: Default CIDR 192.168.0.0/16 create some conflicts with Virtualbox, 
+So **kubeadm init** is done with option **--pod-network-cidr=172.16.0.0/16**
 
 ## Setup Kubernetes dashboard
 

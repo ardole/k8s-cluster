@@ -8,9 +8,9 @@ NODE_IP="$1"
 
 sudo bash -c 'cat > /etc/hosts <<EOF
 127.0.0.1	localhost
-192.168.48.141  k8s-1
-192.168.48.142  k8s-2
-192.168.48.143  k8s-3
+192.168.50.10	k8s-1
+192.168.50.11	k8s-2
+192.168.50.12	k8s-3
 EOF'
 
 # Install Docker
@@ -33,6 +33,9 @@ EOF'
 sudo systemctl daemon-reload
 sudo systemctl enable docker.service
 sudo systemctl restart docker
+
+# Add vagrant user to docker group for easy debuging
+sudo usermod -aG docker vagrant
 
 # Set SELinux in permissive mode (effectively disabling it)
 sudo setenforce 0
@@ -71,4 +74,4 @@ sudo systemctl restart kubelet
 sudo systemctl enable --now kubelet
 
 # Join the master
-sudo kubeadm join 192.168.48.141:6443 --token vag3nt.nos3curebutlocal --discovery-token-unsafe-skip-ca-verification
+sudo kubeadm join 192.168.50.10:6443 --token vag3nt.nos3curebutlocal --discovery-token-unsafe-skip-ca-verification
