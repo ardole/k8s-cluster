@@ -78,5 +78,29 @@ sudo kubeadm init --token vag3nt.nos3curebutlocal --pod-network-cidr=172.16.0.0/
 mkdir -p /home/vagrant/.kube
 sudo cp -f /etc/kubernetes/admin.conf /home/vagrant/.kube/config
 sudo chown vagrant:vagrant /home/vagrant/.kube/config
-# Install CNI : Flannel
+# Install CNI : Calico
 su - vagrant -c "kubectl apply -f https://docs.projectcalico.org/v3.11/manifests/calico.yaml"
+
+# Install Ingress-Nginx
+# See https://kubernetes.github.io/ingress-nginx/deploy/
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/nginx-0.28.0/deploy/static/mandatory.yaml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/nginx-0.28.0/deploy/static/provider/baremetal/service-nodeport.yaml
+
+# Install MetalLB
+# See https://metallb.universe.tf/
+kubectl apply -f https://raw.githubusercontent.com/google/metallb/v0.8.3/manifests/metallb.yaml
+
+cat <<EOF | kubectl apply -f -
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: metallb-system
+  name: config
+data:
+  config: |
+    address-pools:
+      - name: my-ip-space
+        protocol: layer2
+        addresses:
+         - 192.168.50.240-192.168.50.250
+EOF
