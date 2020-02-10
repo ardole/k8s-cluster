@@ -1,6 +1,6 @@
 [
   {
-    "name": "k8s-1",
+    "name": "k8s-master",
     "box": "centos/7",
     "ram": 2048,
     "vcpu": 2,
@@ -17,7 +17,7 @@
     ]
   },
   {
-    "name": "k8s-2",
+    "name": "k8s-node-1",
     "box": "centos/7",
     "ram": 1024,
     "vcpu": 1,
@@ -25,7 +25,7 @@
     "script": "install-k8s-node.sh"
   },
   {
-    "name": "k8s-3",
+    "name": "k8s-node-2",
     "box": "centos/7",
     "ram": 1024,
     "vcpu": 1,

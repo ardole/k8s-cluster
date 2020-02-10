@@ -8,9 +8,9 @@ NODE_IP="$1"
 
 sudo bash -c 'cat > /etc/hosts <<EOF
 127.0.0.1	localhost
-192.168.50.10	k8s-1
-192.168.50.11	k8s-2
-192.168.50.12	k8s-3
+192.168.50.10	k8s-master
+192.168.50.11	k8s-node-1
+192.168.50.12	k8s-node-2
 EOF'
 
 # Install Docker

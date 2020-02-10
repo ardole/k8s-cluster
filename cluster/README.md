@@ -34,35 +34,35 @@ vagrant up
 
 ```
 cd vagrant
-vagrant ssh k8s-1
+vagrant ssh k8s-master
 ```
 
 - Check nodes
 
 ```console
-[vagrant@k8s-1 ~]$ kubectl get nodes
-NAME    STATUS   ROLES    AGE   VERSION
-k8s-1   Ready    master   66m   v1.17.2
-k8s-2   Ready    <none>   61m   v1.17.2
-k8s-3   Ready    <none>   55m   v1.17.2
+[vagrant@k8s-master ~]$ kubectl get nodes
+NAME                 STATUS   ROLES    AGE   VERSION
+k8s-master           Ready    master   66m   v1.17.2
+k8s-node-1           Ready    <none>   61m   v1.17.2
+k8s-node-2           Ready    <none>   55m   v1.17.2
 ```
 
 - Check that all kube-system pods are running (coredns, calico, kube-proxy...) 
 
 ```console
-[vagrant@k8s-1 ~]$ kubectl get pods -n kube-system
+[vagrant@k8s-master ~]$ kubectl get pods -n kube-system
 NAME                                       READY   STATUS    RESTARTS   AGE
-calico-kube-controllers-5b644bc49c-csxh9   1/1     Running   1          126m
-calico-node-jmfx2                          1/1     Running   1          120m
-calico-node-vw9sg                          1/1     Running   1          126m
-coredns-6955765f44-6mtsz                   1/1     Running   1          126m
-coredns-6955765f44-zlfbz                   1/1     Running   1          126m
-etcd-k8s-1                                 1/1     Running   1          126m
-kube-apiserver-k8s-1                       1/1     Running   1          126m
-kube-controller-manager-k8s-1              1/1     Running   1          126m
-kube-proxy-lmczw                           1/1     Running   1          120m
-kube-proxy-qrsw6                           1/1     Running   1          126m
-kube-scheduler-k8s-1                       1/1     Running   1          126m
+calico-kube-controllers-5b644bc49c-nhjmn   1/1     Running   0          52m
+calico-node-kwkct                          1/1     Running   0          52m
+calico-node-swmgx                          1/1     Running   1          35m
+coredns-6955765f44-g47wz                   1/1     Running   0          52m
+coredns-6955765f44-sjd7t                   1/1     Running   0          52m
+etcd-k8s-master                            1/1     Running   0          53m
+kube-apiserver-k8s-master                  1/1     Running   0          53m
+kube-controller-manager-k8s-master         1/1     Running   0          53m
+kube-proxy-95wlx                           1/1     Running   1          35m
+kube-proxy-hnxsq                           1/1     Running   0          52m
+kube-scheduler-k8s-master                  1/1     Running   0          53m
 ```
 
 ## Post installation steps
@@ -71,25 +71,25 @@ If you want to use and test Ingress resources,
 you will need to update the /etc/hosts on master.
 
 ```console
-[vagrant@k8s-1 ~]$ kubectl get ing
+[vagrant@k8s-master ~]$ kubectl get ing
 NAME          HOSTS          ADDRESS        PORTS   AGE
 my-ingress    mywebserver    10.100.71.58   80      103m
 ```
 
 ```console
-[vagrant@k8s-1 ~]$ cat /etc/hosts
+[vagrant@k8s-master ~]$ cat /etc/hosts
 127.0.0.1       localhost
 10.100.71.58    mywebserver
-192.168.50.10   k8s-1
-192.168.50.11   k8s-2
-192.168.50.12   k8s-3
+192.168.50.10   k8s-master
+192.168.50.11   k8s-node-1
+192.168.50.12   k8s-node-2
 ```
 
 ## More about this cluster
 
 ### Components
 
-- Control machine is **k8s-1**
+- Control machine is **k8s-master**
 - Docker is installed, with systemd
 - CNI used is Calico
 - Nginx Ingress
@@ -124,7 +124,7 @@ In order to setup the dashboard you need:
 - Get the token for user-admin (because you will access the dashboard outside from the cluster, from your host)
 
 ```console
-[vagrant@k8s-1 ~]$ kubectl -n kubernetes-dashboard describe secret $(kubectl -n kubernetes-dashboard get secret | grep admin-user | awk '{print $1}')
+[vagrant@k8s-master ~]$ kubectl -n kubernetes-dashboard describe secret $(kubectl -n kubernetes-dashboard get secret | grep admin-user | awk '{print $1}')
 ...
 ...
 Data
@@ -139,7 +139,7 @@ token:      eyJhbGciOiJSUzI1NiIsImtpZCI6IlNkUFVsZjZrbWtYdzVkSG1qVldFVjFteTVXcndu
 - Start dashboard proxy, don't forget **--address=0.0.0.0** option.
 
 ```console
-[vagrant@k8s-1 ~]$ kubectl proxy --address=0.0.0.0
+[vagrant@k8s-master ~]$ kubectl proxy --address=0.0.0.0
 Starting to serve on [::]:8001
 ```
 

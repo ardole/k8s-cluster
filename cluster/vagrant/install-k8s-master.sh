@@ -8,9 +8,9 @@ NODE_IP="$1"
 
 sudo bash -c 'cat > /etc/hosts <<EOF
 127.0.0.1	localhost
-192.168.50.10	k8s-1
-192.168.50.11	k8s-2
-192.168.50.12	k8s-3
+192.168.50.10	k8s-master
+192.168.50.11	k8s-node-1
+192.168.50.12	k8s-node-2
 EOF'
 
 # Install Docker
@@ -78,19 +78,24 @@ sudo kubeadm init --token vag3nt.nos3curebutlocal --pod-network-cidr=172.16.0.0/
 mkdir -p /home/vagrant/.kube
 sudo cp -f /etc/kubernetes/admin.conf /home/vagrant/.kube/config
 sudo chown vagrant:vagrant /home/vagrant/.kube/config
+
+##
+## NB: For following command, the 'su - vagrant' is not a joke, we need this because K8S config is not loaded in the current context
+##
+
 # Install CNI : Calico
 su - vagrant -c "kubectl apply -f https://docs.projectcalico.org/v3.11/manifests/calico.yaml"
 
 # Install Ingress-Nginx
 # See https://kubernetes.github.io/ingress-nginx/deploy/
-kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/nginx-0.28.0/deploy/static/mandatory.yaml
-kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/nginx-0.28.0/deploy/static/provider/baremetal/service-nodeport.yaml
+su - vagrant -c "kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/nginx-0.28.0/deploy/static/mandatory.yaml"
+su - vagrant -c "kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/nginx-0.28.0/deploy/static/provider/baremetal/service-nodeport.yaml"
 
 # Install MetalLB
 # See https://metallb.universe.tf/
-kubectl apply -f https://raw.githubusercontent.com/google/metallb/v0.8.3/manifests/metallb.yaml
+su - vagrant -c "kubectl apply -f https://raw.githubusercontent.com/google/metallb/v0.8.3/manifests/metallb.yaml"
 
-cat <<EOF | kubectl apply -f -
+cat > config-metallb.yml <<EOF
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -105,18 +110,20 @@ data:
          - 192.168.50.240-192.168.50.250
 EOF
 
-# Install Kubernetes Dashboard
-kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0-beta8/aio/deploy/recommended.yaml
+su - vagrant -c "kubectl apply -f config-metallb.yml"
 
-cat <<EOF | kubectl apply -f -
+# Install Kubernetes Dashboard
+su - vagrant -c "kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0-beta8/aio/deploy/recommended.yaml"
+
+cat > dashboard-rbac.yml <<EOF
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: admin-user
   namespace: kubernetes-dashboard
-EOF
 
-cat <<EOF | kubectl apply -f -
+---
+
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
@@ -130,3 +137,5 @@ subjects:
   name: admin-user
   namespace: kubernetes-dashboard
 EOF
+
+su - vagrant -c "kubectl apply -f dashboard-rbac.yml"
