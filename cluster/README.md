@@ -28,6 +28,7 @@ You can modify if needed servers settings:
 cd vagrant
 vagrant up
 ```
+
 ## Check installation 
 
 - SSH connexion to control machine
@@ -68,7 +69,17 @@ kube-scheduler-k8s-master                  1/1     Running   0          53m
 ## Post installation steps
 
 If you want to use and test Ingress resources, 
-you will need to update the /etc/hosts on master.
+
+- Apply an example with a deployment, a service, and an ingress.
+
+```console
+[vagrant@k8s-master ~]$ kubectl apply -f https://raw.githubusercontent.com/dvps-ad/k8s-clusters/master/demo/example.yaml
+service/my-example created
+deployment.apps/example-deployment created
+ingress.extensions/my-ingress created
+```
+
+- Get ingress host and ip.
 
 ```console
 [vagrant@k8s-master ~]$ kubectl get ing
@@ -76,13 +87,33 @@ NAME          HOSTS          ADDRESS        PORTS   AGE
 my-ingress    mywebserver    10.100.71.58   80      103m
 ```
 
+- Add it at the bottom of /etc/hosts
+
 ```console
+[vagrant@k8s-master ~]$ vi /etc/hosts
 [vagrant@k8s-master ~]$ cat /etc/hosts
 127.0.0.1       localhost
 10.100.71.58    mywebserver
 192.168.50.10   k8s-master
 192.168.50.11   k8s-node-1
 192.168.50.12   k8s-node-2
+```
+
+- Enjoy
+
+```console
+[vagrant@k8s-master ~]$ curl http://mywebserver
+Hello, world!
+Version: 2.0.0
+Hostname: example-deployment-68747f8875-wnnxs
+[vagrant@k8s-master ~]$ curl http://mywebserver
+Hello, world!
+Version: 2.0.0
+Hostname: example-deployment-68747f8875-fssfk
+[vagrant@k8s-master ~]$ curl http://mywebserver
+Hello, world!
+Version: 2.0.0
+Hostname: example-deployment-68747f8875-jkxlg
 ```
 
 ## More about this cluster

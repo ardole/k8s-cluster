@@ -1,35 +1,36 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: my-nodeport-nginx
+  name: my-example
 spec:
   selector:
-    app: nginx
+    app: example
   ports:
     - name: http
-      port: 80
-      targetPort: 80
+      port: 8080
+      targetPort: 8080
       protocol: TCP
   type: LoadBalancer
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: nginx-deployment
+  name: example-deployment
 spec:
   selector:
     matchLabels:
-      app: nginx
+      app: example
+  replicas: 3
   template:
     metadata:
       labels:
-        app: nginx
+        app: example
     spec:
       containers:
-        - name: nginx
-          image: nginx:1.8
+        - name: example
+          image: gcr.io/google-samples/hello-app:2.0
           ports:
-            - containerPort: 80
+            - containerPort: 8080
 ---
 apiVersion: extensions/v1beta1
 kind: Ingress
@@ -37,10 +38,10 @@ metadata:
   name: my-ingress
 spec:
   rules:
-    - host: localhost
+    - host: mywebserver
       http:
         paths:
           - path: /
             backend:
-              serviceName: my-nodeport-nginx
-              servicePort: 80
+              serviceName: my-example
+              servicePort: 8080
