@@ -71,7 +71,7 @@ If you want to use and test Ingress resources,
 - Apply an example with a deployment, a service, and an ingress.
 
 ```console
-[vagrant@k8s-master ~]$ kubectl apply -f https://raw.githubusercontent.com/dvps-ad/k8s-cluster/master/demo/sample.yaml
+[vagrant@k8s-master ~]$ kubectl apply -f https://raw.githubusercontent.com/ardole/k8s-cluster/master/demo/sample.yaml
 service/my-example created
 deployment.apps/example-deployment created
 ingress.extensions/my-ingress created
