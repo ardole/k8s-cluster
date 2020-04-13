@@ -64,7 +64,7 @@ kube-proxy-hnxsq                           1/1     Running   0          52m
 kube-scheduler-k8s-master                  1/1     Running   0          53m
 ```
 
-## Post installation steps
+## Test Ingress
 
 If you want to use and test Ingress resources, 
 
@@ -114,38 +114,6 @@ Version: 2.0.0
 Hostname: example-deployment-68747f8875-jkxlg
 ```
 
-## More about this cluster
-
-### Components
-
-- Control machine is **k8s-master**
-- Docker is installed, with systemd
-- CNI used is Calico
-- Nginx Ingress
-- A bare metal load-balancer : MetalLB
-
-### About Calico
-
-Some difficulties with Flannel and Virtualbox. Calico works well.
-
-:warning: Default CIDR 192.168.0.0/16 create some conflicts with Virtualbox, 
-So **kubeadm init** is done with option **--pod-network-cidr=172.16.0.0/16**
-
-### About MetalLB
-
-Kubernetes does not offer an implementation of network load-balancers (Services of type LoadBalancer) for bare metal clusters.
-If you’re not running on a supported IaaS platform (GCP, AWS, Azure…), LoadBalancers will remain in the “pending” state indefinitely when created.
-
-```console
-[root@localhost temp]# kubectl get services
-NAME       TYPE           CLUSTER-IP     EXTERNAL-IP   PORT(S)          AGE
-my-nginx   LoadBalancer   10.111.43.88   <pending>     80:31730/TCP     22m
-```
-
-With MetalLB, it works ! https://metallb.universe.tf/
-
-Range IPs for MetalLB is configured 192.168.50.240-192.168.50.250. See [vagrant/install-k8s-master.sh](vagrant/install-k8s-master.sh) 
-
 ## Setup Kubernetes dashboard
 
 In order to setup the dashboard you need:
@@ -183,3 +151,34 @@ Starting to serve on [::]:8001
 
 ![Dashboard token](./sc/k8s-dashboard.png)
 
+## More about this cluster
+
+### Components
+
+- Control machine is **k8s-master**
+- Docker is installed, with systemd
+- CNI used is Calico
+- Nginx Ingress
+- A bare metal load-balancer : MetalLB
+
+### About Calico
+
+Some difficulties with Flannel and Virtualbox. Calico works well.
+
+:warning: Default CIDR 192.168.0.0/16 create some conflicts with Virtualbox, 
+So **kubeadm init** is done with option **--pod-network-cidr=172.16.0.0/16**
+
+### About MetalLB
+
+Kubernetes does not offer an implementation of network load-balancers (Services of type LoadBalancer) for bare metal clusters.
+If you’re not running on a supported IaaS platform (GCP, AWS, Azure…), LoadBalancers will remain in the “pending” state indefinitely when created.
+
+```console
+[root@localhost temp]# kubectl get services
+NAME       TYPE           CLUSTER-IP     EXTERNAL-IP   PORT(S)          AGE
+my-nginx   LoadBalancer   10.111.43.88   <pending>     80:31730/TCP     22m
+```
+
+With MetalLB, it works ! https://metallb.universe.tf/
+
+Range IPs for MetalLB is configured 192.168.50.240-192.168.50.250. See [vagrant/install-k8s-master.sh](vagrant/install-k8s-master.sh) 
